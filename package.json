@@ -1,0 +1,45 @@
+{
+  "name": "soundscape-seattle",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\""
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "expo": "~52.0.0",
+    "expo-av": "~15.0.1",
+    "expo-camera": "~16.0.6",
+    "expo-constants": "~17.0.3",
+    "expo-file-system": "~18.0.4",
+    "expo-haptics": "~14.0.0",
+    "expo-keep-awake": "~14.0.1",
+    "expo-linking": "~7.0.3",
+    "expo-secure-store": "~14.0.0",
+    "expo-status-bar": "~2.0.0",
+    "react": "18.3.1",
+    "react-native": "0.76.5",
+    "react-native-dotenv": "^3.4.11",
+    "zod": "^3.23.8",
+    "@react-navigation/native": "^6.1.18",
+    "@react-navigation/bottom-tabs": "^6.6.1",
+    "react-native-safe-area-context": "4.12.0",
+    "react-native-screens": "~4.3.0",
+    "@react-native-community/slider": "4.5.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@eslint/js": "^9.16.0",
+    "@types/react": "~18.3.12",
+    "eslint": "^9.16.0",
+    "prettier": "^3.4.2",
+    "typescript": "~5.3.3",
+    "typescript-eslint": "^8.18.1"
+  },
+  "private": true
+}

@@ -1,0 +1,8 @@
+{
+  "crosswalk_present": true,
+  "alignment": "center",
+  "curb_ahead": false,
+  "obstacle_close": false,
+  "confidence": 0.85,
+  "narration": "Crosswalk ahead, path is clear"
+}

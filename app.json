@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "SoundScape Seattle",
+    "slug": "soundscape-seattle",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.soundscape.seattle",
+      "infoPlist": {
+        "NSCameraUsageDescription": "SoundScape needs camera access to analyze your surroundings and provide guidance.",
+        "NSMicrophoneUsageDescription": "SoundScape needs microphone access for voice features."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
+      },
+      "package": "com.soundscape.seattle",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow SoundScape to access your camera for scene analysis."
+        }
+      ]
+    ]
+  }
+}
