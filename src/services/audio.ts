@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { Audio } from 'expo-av';
+import * as Speech from 'expo-speech';
 
 let lastSpeechTime = 0;
 let audioInitialized = false;
@@ -22,18 +23,21 @@ export async function initAudio(): Promise<void> {
 }
 
 export async function speak(text: string): Promise<void> {
-  // This is the system TTS fallback
-  // On web, we can use SpeechSynthesis API
-  // On native, expo-speech would be needed (not included to keep deps minimal)
-  // For MVP, we'll just log and rely on ElevenLabs
+  // System TTS fallback using expo-speech
   console.log('System TTS:', text);
 
-  // Simple web fallback
-  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9;
-    utterance.pitch = 1.0;
-    window.speechSynthesis.speak(utterance);
+  try {
+    // Stop any ongoing speech
+    Speech.stop();
+
+    // Speak using native TTS
+    Speech.speak(text, {
+      rate: 0.9,
+      pitch: 1.0,
+      language: 'en-US',
+    });
+  } catch (error) {
+    console.error('Speech error:', error);
   }
 }
 

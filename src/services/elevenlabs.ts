@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import { File, Paths } from 'expo-file-system';
 import { Audio } from 'expo-av';
 import { ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID } from '../constants';
 import { speak as systemSpeak } from './audio';
@@ -24,50 +24,44 @@ export async function speak(text: string, voiceId: string = ELEVENLABS_VOICE_ID)
   }
 
   try {
-    const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+    const apiUrl = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
 
-    const response = await fetch(url, {
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'xi-api-key': ELEVENLABS_API_KEY,
         'Content-Type': 'application/json',
-        'accept': 'audio/mpeg',
       },
       body: JSON.stringify({
         text,
+        model_id: 'eleven_turbo_v2_5',
         voice_settings: {
-          stability: 0.4,
-          similarity_boost: 0.8,
+          stability: 0.5,
+          similarity_boost: 0.75,
         },
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`ElevenLabs API error: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`ElevenLabs API error: ${response.status} - ${errorText}`);
     }
 
-    const blob = await response.blob();
-    const reader = new FileReader();
+    // Get audio as binary data
+    const arrayBuffer = await response.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
 
-    const base64Audio = await new Promise<string>((resolve, reject) => {
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        const base64 = result.split(',')[1];
-        resolve(base64);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
+    // Write to file - save as binary data
+    const fileName = `tts_${Date.now()}.mp3`;
+    const file = new File(Paths.cache, fileName);
+    file.create();
 
-    // Save to cache directory
-    const fileUri = `${FileSystem.cacheDirectory}tts_${Date.now()}.mp3`;
-    await FileSystem.writeAsStringAsync(fileUri, base64Audio, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
+    // Write the raw bytes directly
+    file.write(uint8Array);
 
-    // Play the audio
+    // Play the audio using expo-av
     const { sound } = await Audio.Sound.createAsync(
-      { uri: fileUri },
+      { uri: file.uri },
       { shouldPlay: true, volume: 1.0 }
     );
 
@@ -77,7 +71,11 @@ export async function speak(text: string, voiceId: string = ELEVENLABS_VOICE_ID)
     sound.setOnPlaybackStatusUpdate((status) => {
       if (status.isLoaded && status.didJustFinish) {
         sound.unloadAsync().catch(console.warn);
-        FileSystem.deleteAsync(fileUri, { idempotent: true }).catch(console.warn);
+        try {
+          file.delete();
+        } catch (e) {
+          console.warn('Error deleting file:', e);
+        }
         if (currentSound === sound) {
           currentSound = null;
         }

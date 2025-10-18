@@ -1,20 +1,18 @@
-import Constants from 'expo-constants';
-
 export const MIN_CUE_INTERVAL_MS = 2500;
 
 export const DEFAULT_CAPTURE_INTERVAL_MS =
-  Number(Constants.expoConfig?.extra?.EXPO_PUBLIC_CAPTURE_INTERVAL_MS) || 1200;
+  Number(process.env.EXPO_PUBLIC_CAPTURE_INTERVAL_MS) || 1200;
 
 export const GOOGLE_API_KEY =
-  Constants.expoConfig?.extra?.EXPO_PUBLIC_GOOGLE_API_KEY || '';
+  process.env.EXPO_PUBLIC_GOOGLE_API_KEY || '';
 
 export const ELEVENLABS_API_KEY =
-  Constants.expoConfig?.extra?.EXPO_PUBLIC_ELEVENLABS_API_KEY || '';
+  process.env.EXPO_PUBLIC_ELEVENLABS_API_KEY || '';
 
 export const ELEVENLABS_VOICE_ID =
-  Constants.expoConfig?.extra?.EXPO_PUBLIC_ELEVENLABS_VOICE_ID || 'Rachel';
+  process.env.EXPO_PUBLIC_ELEVENLABS_VOICE_ID || 'Rachel';
 
-export const GEMINI_MODEL = 'gemini-1.5-flash';
+export const GEMINI_MODEL = 'gemini-2.5-flash';
 
 export const SCENE_ANALYSIS_PROMPT = `You are a scene safety parser. Return ONLY valid JSON matching:
 {

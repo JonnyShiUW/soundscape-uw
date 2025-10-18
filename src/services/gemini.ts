@@ -27,7 +27,9 @@ function getGenAI(): GoogleGenerativeAI {
 export async function analyzeFrameAsync(base64Jpeg: string): Promise<SceneJSON> {
   try {
     const ai = getGenAI();
-    const model = ai.getGenerativeModel({ model: GEMINI_MODEL });
+    const model = ai.getGenerativeModel({
+      model: 'gemini-2.5-flash',
+    });
 
     const result = await model.generateContent([
       SCENE_ANALYSIS_PROMPT,
