@@ -8,6 +8,7 @@ import { speak } from '../services/elevenlabs';
 import { initAudio } from '../services/audio';
 import { requestPermissions } from '../services/permissions';
 import { loadSettings } from '../services/storage';
+import { getWhereAmI, requestLocationPermission } from '../services/location';
 import { AppSettings } from '../types';
 import { DEFAULT_SETTINGS } from '../constants';
 import { theme } from '../theme';
@@ -16,7 +17,10 @@ export function HomeScreen() {
   const [isActive, setIsActive] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [isDescribing, setIsDescribing] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationMessage, setLocationMessage] = useState<string>('');
   const cameraRef = useRef<CameraPreviewRef>(null);
+  const lastLocationRequestRef = useRef<number>(0);
 
   useKeepAwake();
 
@@ -35,6 +39,9 @@ export function HomeScreen() {
         [{ text: 'OK' }]
       );
     }
+
+    // Request location permission
+    await requestLocationPermission();
 
     const loadedSettings = await loadSettings();
     setSettings(loadedSettings);
@@ -78,6 +85,47 @@ export function HomeScreen() {
     }
   };
 
+  const handleWhereAmI = async () => {
+    // Check cooldown (2 seconds)
+    const now = Date.now();
+    const cooldownMs = 2000;
+
+    if (now - lastLocationRequestRef.current < cooldownMs) {
+      console.log('📍 [LOCATION] Request throttled (cooldown active)');
+      return;
+    }
+
+    if (isLocating) {
+      console.log('📍 [LOCATION] Request already in progress');
+      return;
+    }
+
+    setIsLocating(true);
+    lastLocationRequestRef.current = now;
+
+    try {
+      console.log('📍 [LOCATION] User requested "Where am I?"');
+
+      // Get location and reverse geocode
+      const result = await getWhereAmI();
+
+      console.log('📍 [LOCATION] Speaking phrase:', result.phrase);
+
+      // Update location message for pill display
+      setLocationMessage(result.phrase);
+
+      // Speak the phrase
+      await speak(result.phrase, settings.voiceId);
+    } catch (error) {
+      console.error('❌ [LOCATION] Error getting location:', error);
+      const errorPhrase = 'Location unknown.';
+      setLocationMessage(errorPhrase);
+      await speak(errorPhrase, settings.voiceId);
+    } finally {
+      setIsLocating(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <CameraPreview
@@ -86,6 +134,7 @@ export function HomeScreen() {
         captureIntervalMs={settings.captureIntervalMs}
         safeMode={settings.safeMode}
         voiceId={settings.voiceId}
+        locationMessage={locationMessage}
       />
 
       <View style={styles.controlsContainer}>
@@ -93,6 +142,14 @@ export function HomeScreen() {
           title={isActive ? 'Stop' : 'Start'}
           onPress={handleToggleActive}
           variant={isActive ? 'danger' : 'primary'}
+        />
+
+        <BigButton
+          title="Where am I?"
+          onPress={handleWhereAmI}
+          variant="secondary"
+          disabled={isLocating}
+          style={styles.locationButton}
         />
 
         <BigButton
@@ -119,6 +176,9 @@ const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: theme.spacing.lg,
     gap: theme.spacing.md,
+  },
+  locationButton: {
+    marginTop: theme.spacing.sm,
   },
   describeButton: {
     marginTop: theme.spacing.sm,

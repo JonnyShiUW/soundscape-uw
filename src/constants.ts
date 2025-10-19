@@ -6,6 +6,9 @@ export const DEFAULT_CAPTURE_INTERVAL_MS =
 export const GOOGLE_API_KEY =
   process.env.EXPO_PUBLIC_GOOGLE_API_KEY || '';
 
+export const GOOGLE_MAPS_API_KEY =
+  process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+
 export const ELEVENLABS_API_KEY =
   process.env.EXPO_PUBLIC_ELEVENLABS_API_KEY || '';
 

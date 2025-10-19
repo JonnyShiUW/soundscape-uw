@@ -15,6 +15,7 @@ interface CameraPreviewProps {
   captureIntervalMs: number;
   safeMode: boolean;
   voiceId: string;
+  locationMessage?: string;
   onSceneUpdate?: (scene: SceneJSON) => void;
 }
 
@@ -27,6 +28,7 @@ export const CameraPreview = forwardRef<CameraPreviewRef, CameraPreviewProps>(({
   captureIntervalMs,
   safeMode,
   voiceId,
+  locationMessage,
   onSceneUpdate,
 }, ref) => {
   const [permission, requestPermission] = useCameraPermissions();
@@ -183,7 +185,7 @@ export const CameraPreview = forwardRef<CameraPreviewRef, CameraPreviewProps>(({
       <View style={styles.statusContainer}>
         <StatusBarPill
           status={isActive ? status : 'offline'}
-          message={lastMessage}
+          message={locationMessage || lastMessage}
           fps={isActive ? fps : undefined}
         />
       </View>
