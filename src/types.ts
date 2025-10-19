@@ -23,4 +23,5 @@ export type AppSettings = {
   cueVerbosity: "normal" | "brief";
   voiceId: string;
   safeMode: boolean;
+  voiceMode: boolean;
 };

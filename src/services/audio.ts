@@ -12,7 +12,7 @@ export async function initAudio(): Promise<void> {
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
       playsInSilentModeIOS: true,
-      shouldDuckAndroid: true,
+      shouldDuckAndroid: false,
       playThroughEarpieceAndroid: false,
       staysActiveInBackground: false,
     });

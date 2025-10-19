@@ -46,4 +46,5 @@ export const DEFAULT_SETTINGS = {
   cueVerbosity: 'normal' as const,
   voiceId: ELEVENLABS_VOICE_ID,
   safeMode: false,
+  voiceMode: false,
 };

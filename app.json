@@ -16,7 +16,8 @@
       "bundleIdentifier": "com.soundscape.seattle",
       "infoPlist": {
         "NSCameraUsageDescription": "SoundScape needs camera access to analyze your surroundings and provide guidance.",
-        "NSMicrophoneUsageDescription": "SoundScape needs microphone access for voice features."
+        "NSMicrophoneUsageDescription": "SoundScape needs microphone access for voice commands and features.",
+        "NSSpeechRecognitionUsageDescription": "SoundScape needs speech recognition access to understand your voice commands."
       }
     },
     "android": {
@@ -27,7 +28,9 @@
       "package": "com.soundscape.seattle",
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
       ]
     },
     "web": {
@@ -39,7 +42,8 @@
         {
           "cameraPermission": "Allow SoundScape to access your camera for scene analysis."
         }
-      ]
+      ],
+      "expo-speech-recognition"
     ]
   }
 }

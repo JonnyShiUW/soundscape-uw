@@ -97,6 +97,28 @@ export function SettingsScreen() {
         <Text style={styles.sectionTitle}>Voice Settings</Text>
 
         <View style={styles.setting}>
+          <View style={styles.row}>
+            <View style={styles.flex}>
+              <Text style={styles.label}>Voice Mode</Text>
+              <Text style={styles.description}>
+                Use voice commands instead of buttons (powered by Google Cloud Speech-to-Text)
+              </Text>
+            </View>
+            <Switch
+              value={settings.voiceMode}
+              onValueChange={(value) =>
+                setSettings({ ...settings, voiceMode: value })
+              }
+              trackColor={{
+                false: theme.colors.border,
+                true: theme.colors.primary,
+              }}
+              thumbColor={theme.colors.text}
+            />
+          </View>
+        </View>
+
+        <View style={styles.setting}>
           <Text style={styles.label}>ElevenLabs Voice ID</Text>
           <Text style={styles.description}>
             Voice ID for text-to-speech (e.g., Rachel, Adam)
