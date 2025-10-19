@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { useKeepAwake } from 'expo-keep-awake';
-import { CameraPreview } from '../components/CameraPreview';
+import { CameraPreview, CameraPreviewRef } from '../components/CameraPreview';
 import { BigButton } from '../components/BigButton';
-import { analyzeFrameAsync, isGeminiConfigured } from '../services/gemini';
+import { isGeminiConfigured } from '../services/gemini';
 import { speak } from '../services/elevenlabs';
 import { initAudio } from '../services/audio';
 import { requestPermissions } from '../services/permissions';
@@ -11,14 +11,12 @@ import { loadSettings } from '../services/storage';
 import { AppSettings } from '../types';
 import { DEFAULT_SETTINGS } from '../constants';
 import { theme } from '../theme';
-import { CameraView } from 'expo-camera';
-import mockSceneData from '../mockScene.json';
 
 export function HomeScreen() {
   const [isActive, setIsActive] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [isDescribing, setIsDescribing] = useState(false);
-  const cameraRef = useRef<CameraView>(null);
+  const cameraRef = useRef<CameraPreviewRef>(null);
 
   useKeepAwake();
 
@@ -52,29 +50,28 @@ export function HomeScreen() {
     setIsDescribing(true);
 
     try {
-      // Get current camera reference from CameraPreview
-      // For simplicity in MVP, we'll use mock data or show a message
-      if (isGeminiConfigured()) {
-        Alert.alert(
-          'Describe Scene',
-          'Scene description requires capturing a frame. This feature captures the current view and provides a detailed description.',
-          [{ text: 'OK' }]
-        );
-
-        // In a production app, we'd pass a ref to capture from CameraPreview
-        const scene = mockSceneData;
-        const narration =
-          scene.narration || 'Scene analysis complete. No detailed description available.';
-
-        await speak(narration, settings.voiceId);
-      } else {
+      if (!isGeminiConfigured()) {
         await speak(
           'Scene description unavailable. Vision service is offline.',
           settings.voiceId
         );
+        return;
       }
+
+      if (!cameraRef.current) {
+        await speak('Camera not ready.', settings.voiceId);
+        return;
+      }
+
+      console.log('🎤 [DESCRIBE] User requested scene description');
+
+      // Capture and get narration from Gemini
+      const narration = await cameraRef.current.captureAndDescribe();
+
+      console.log('🎤 [DESCRIBE] Speaking narration:', narration);
+      await speak(narration, settings.voiceId);
     } catch (error) {
-      console.error('Scene description error:', error);
+      console.error('❌ [DESCRIBE] Scene description error:', error);
       await speak('Scene description unavailable.', settings.voiceId);
     } finally {
       setIsDescribing(false);
@@ -84,6 +81,7 @@ export function HomeScreen() {
   return (
     <View style={styles.container}>
       <CameraPreview
+        ref={cameraRef}
         isActive={isActive}
         captureIntervalMs={settings.captureIntervalMs}
         safeMode={settings.safeMode}

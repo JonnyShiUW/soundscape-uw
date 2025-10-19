@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useInterval } from '../hooks/useInterval';
@@ -18,13 +18,17 @@ interface CameraPreviewProps {
   onSceneUpdate?: (scene: SceneJSON) => void;
 }
 
-export function CameraPreview({
+export interface CameraPreviewRef {
+  captureAndDescribe: () => Promise<string>;
+}
+
+export const CameraPreview = forwardRef<CameraPreviewRef, CameraPreviewProps>(({
   isActive,
   captureIntervalMs,
   safeMode,
   voiceId,
   onSceneUpdate,
-}: CameraPreviewProps) {
+}, ref) => {
   const [permission, requestPermission] = useCameraPermissions();
   const [status, setStatus] = useState<'offline' | 'analyzing' | 'ready' | 'error'>('offline');
   const [lastMessage, setLastMessage] = useState<string>('');
@@ -39,6 +43,43 @@ export function CameraPreview({
       requestPermission();
     }
   }, [permission, requestPermission]);
+
+  const captureAndDescribe = async (): Promise<string> => {
+    if (!cameraRef.current) {
+      throw new Error('Camera not ready');
+    }
+
+    if (!isGeminiConfigured()) {
+      throw new Error('Gemini API not configured');
+    }
+
+    try {
+      console.log('📸 [DESCRIBE] Capturing frame for scene description...');
+
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.5,
+        base64: true,
+        skipProcessing: true,
+      });
+
+      if (!photo?.base64) {
+        throw new Error('Failed to capture image');
+      }
+
+      const scene = await analyzeFrameAsync(photo.base64);
+      console.log('📸 [DESCRIBE] Scene analyzed:', JSON.stringify(scene, null, 2));
+
+      const narration = scene.narration || 'Scene analysis complete. No detailed description available.';
+      return narration;
+    } catch (error) {
+      console.error('❌ [DESCRIBE] Error capturing scene:', error);
+      throw error;
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    captureAndDescribe,
+  }));
 
   const captureAndAnalyze = async () => {
     if (!isActive || !cameraRef.current) return;
@@ -148,7 +189,7 @@ export function CameraPreview({
       </View>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {
