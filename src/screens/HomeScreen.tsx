@@ -68,7 +68,10 @@ export function HomeScreen() {
   };
 
   const handleDescribeScene = async () => {
-    if (isDescribing) return;
+    if (isDescribing) {
+      console.log('🎤 [DESCRIBE] Already describing, ignoring request');
+      return;
+    }
 
     setIsDescribing(true);
 
@@ -78,11 +81,14 @@ export function HomeScreen() {
           'Scene description unavailable. Vision service is offline.',
           settings.voiceId
         );
+        setIsDescribing(false);
         return;
       }
 
       if (!cameraRef.current) {
+        console.warn('🎤 [DESCRIBE] Camera ref not available');
         await speak('Camera not ready.', settings.voiceId);
+        setIsDescribing(false);
         return;
       }
 
@@ -102,24 +108,24 @@ export function HomeScreen() {
   };
 
   const handleWhereAmI = async () => {
-    // Check cooldown (2 seconds)
-    const now = Date.now();
-    const cooldownMs = 2000;
-
-    if (now - lastLocationRequestRef.current < cooldownMs) {
-      console.log('📍 [LOCATION] Request throttled (cooldown active)');
-      return;
-    }
-
-    if (isLocating) {
-      console.log('📍 [LOCATION] Request already in progress');
-      return;
-    }
-
-    setIsLocating(true);
-    lastLocationRequestRef.current = now;
-
     try {
+      // Check cooldown (2 seconds)
+      const now = Date.now();
+      const cooldownMs = 2000;
+
+      if (now - lastLocationRequestRef.current < cooldownMs) {
+        console.log('📍 [LOCATION] Request throttled (cooldown active)');
+        return;
+      }
+
+      if (isLocating) {
+        console.log('📍 [LOCATION] Request already in progress');
+        return;
+      }
+
+      setIsLocating(true);
+      lastLocationRequestRef.current = now;
+
       console.log('📍 [LOCATION] User requested "Where am I?"');
 
       // Get location and reverse geocode
@@ -152,13 +158,13 @@ export function HomeScreen() {
       case 'guide_me':
         // Start guidance if not active
         if (!isActive) {
-          handleToggleActive();
+          setIsActive(true);
         }
         break;
       case 'stop':
         // Stop guidance if active
         if (isActive) {
-          handleToggleActive();
+          setIsActive(false);
         }
         break;
       case 'what_do_you_see':
@@ -183,6 +189,9 @@ export function HomeScreen() {
 
       // Provide audio feedback
       await speak('Listening...', settings.voiceId);
+
+      // Small delay to ensure audio is set up properly
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Recognize voice command using cloud API (works in Expo Go!)
       const result = await recognizeVoiceCommand();
@@ -211,6 +220,7 @@ export function HomeScreen() {
   return (
     <View style={styles.container}>
       <CameraPreview
+        key="camera-preview"
         ref={cameraRef}
         isActive={isActive}
         captureIntervalMs={settings.captureIntervalMs}
@@ -261,20 +271,30 @@ export function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: '#000000',
   },
   controlsContainer: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 0,
     left: 0,
     right: 0,
     paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.xxl + theme.spacing.md,
+    paddingTop: theme.spacing.xl,
     gap: theme.spacing.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    borderTopLeftRadius: theme.borderRadius.xl,
+    borderTopRightRadius: theme.borderRadius.xl,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
   },
   locationButton: {
-    marginTop: theme.spacing.sm,
+    marginTop: 0,
   },
   describeButton: {
-    marginTop: theme.spacing.sm,
+    marginTop: 0,
   },
 });

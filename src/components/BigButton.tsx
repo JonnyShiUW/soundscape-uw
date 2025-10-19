@@ -17,25 +17,63 @@ export function BigButton({
   disabled = false,
   style,
 }: BigButtonProps) {
-  const backgroundColor = disabled
-    ? theme.colors.border
-    : variant === 'primary'
-    ? theme.colors.primary
-    : variant === 'danger'
-    ? theme.colors.danger
-    : theme.colors.secondary;
+  const getButtonStyle = () => {
+    if (disabled) {
+      return {
+        backgroundColor: theme.colors.surfaceElevated,
+        borderColor: theme.colors.border,
+      };
+    }
+
+    switch (variant) {
+      case 'primary':
+        return {
+          backgroundColor: theme.colors.primary,
+          borderColor: theme.colors.primary,
+        };
+      case 'danger':
+        return {
+          backgroundColor: theme.colors.danger,
+          borderColor: theme.colors.danger,
+        };
+      case 'secondary':
+      default:
+        return {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.border,
+        };
+    }
+  };
+
+  const getTextColor = () => {
+    if (disabled) {
+      return theme.colors.textTertiary;
+    }
+    return variant === 'primary' || variant === 'danger'
+      ? '#ffffff'
+      : theme.colors.text;
+  };
+
+  const buttonStyle = getButtonStyle();
 
   return (
     <TouchableOpacity
-      style={[styles.button, { backgroundColor }, style]}
+      style={[
+        styles.button,
+        {
+          backgroundColor: buttonStyle.backgroundColor,
+          borderColor: buttonStyle.borderColor,
+        },
+        style,
+      ]}
       onPress={onPress}
       disabled={disabled}
-      activeOpacity={0.7}
+      activeOpacity={0.8}
       accessibilityRole="button"
       accessibilityLabel={title}
       accessibilityHint={`Tap to ${title.toLowerCase()}`}
     >
-      <Text style={styles.text}>{title}</Text>
+      <Text style={[styles.text, { color: getTextColor() }]}>{title}</Text>
     </TouchableOpacity>
   );
 }
@@ -44,14 +82,19 @@ const styles = StyleSheet.create({
   button: {
     height: theme.buttonHeight.large,
     borderRadius: theme.borderRadius.lg,
+    borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: theme.spacing.xl,
-    minWidth: 200,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   text: {
-    color: theme.colors.text,
-    fontSize: theme.fontSize.lg,
-    fontWeight: '700',
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.semibold,
+    letterSpacing: -0.2,
   },
 });

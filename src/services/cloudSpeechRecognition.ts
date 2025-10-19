@@ -45,7 +45,7 @@ export async function startRecording(): Promise<void> {
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: true,
       playsInSilentModeIOS: true,
-      shouldDuckAndroid: true,
+      shouldDuckAndroid: false,
       playThroughEarpieceAndroid: false,
       staysActiveInBackground: false,
     });
@@ -102,11 +102,34 @@ export async function stopRecording(): Promise<string | null> {
     const uri = recording.getURI();
     recording = null;
 
+    // Restore audio mode for playback only
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: false,
+      playThroughEarpieceAndroid: false,
+      staysActiveInBackground: false,
+    });
+
     console.log('🎤 [CLOUD-SPEECH] Recording stopped, URI:', uri);
     return uri;
   } catch (error) {
     console.error('🎤 [CLOUD-SPEECH] Failed to stop recording:', error);
     recording = null;
+
+    // Try to restore audio mode even on error
+    try {
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: false,
+        playThroughEarpieceAndroid: false,
+        staysActiveInBackground: false,
+      });
+    } catch (e) {
+      console.warn('Failed to restore audio mode:', e);
+    }
+
     return null;
   }
 }

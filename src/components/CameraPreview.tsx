@@ -41,10 +41,15 @@ export const CameraPreview = forwardRef<CameraPreviewRef, CameraPreviewProps>(({
   const lastFpsUpdateRef = useRef<number>(Date.now());
 
   useEffect(() => {
-    if (!permission?.granted) {
+    if (permission === null) {
+      // Permission state not loaded yet
+      return;
+    }
+    if (!permission.granted) {
+      console.log('📷 [CAMERA] Requesting camera permission...');
       requestPermission();
     }
-  }, [permission, requestPermission]);
+  }, [permission]);
 
   const captureAndDescribe = async (): Promise<string> => {
     if (!cameraRef.current) {
@@ -84,7 +89,14 @@ export const CameraPreview = forwardRef<CameraPreviewRef, CameraPreviewProps>(({
   }));
 
   const captureAndAnalyze = async () => {
-    if (!isActive || !cameraRef.current) return;
+    if (!isActive) {
+      return;
+    }
+
+    if (!cameraRef.current) {
+      console.warn('📷 [CAMERA] Skipping capture - no camera ref');
+      return;
+    }
 
     try {
       setStatus('analyzing');
@@ -103,23 +115,19 @@ export const CameraPreview = forwardRef<CameraPreviewRef, CameraPreviewProps>(({
       // Analyze with Gemini or use mock data
       let scene: SceneJSON;
       if (isGeminiConfigured()) {
-        console.log('📸 [CAMERA] Analyzing frame with Gemini...');
         scene = await analyzeFrameAsync(photo.base64);
       } else {
         // Use mock data when Gemini is not configured
-        console.log('📸 [CAMERA] Using mock data (Gemini not configured)');
         await new Promise((resolve) => setTimeout(resolve, 200)); // Simulate API delay
         scene = mockSceneData as SceneJSON;
       }
 
-      console.log('📸 [CAMERA] Scene result:', JSON.stringify(scene, null, 2));
       onSceneUpdate?.(scene);
 
       // Derive guidance
       const guidance = deriveGuidance(scene, lastGuidance, safeMode);
 
       if (guidance && canSpeak()) {
-        console.log('🔊 [CAMERA] Speaking guidance:', guidance.text);
         setLastMessage(guidance.text);
         setLastGuidance(guidance);
         markSpeechTime();
@@ -129,10 +137,6 @@ export const CameraPreview = forwardRef<CameraPreviewRef, CameraPreviewProps>(({
 
         // Speak guidance
         await speak(guidance.text, voiceId);
-      } else if (guidance) {
-        console.log('🔇 [CAMERA] Guidance ready but speech debounced:', guidance.text);
-      } else {
-        console.log('ℹ️  [CAMERA] No guidance generated');
       }
 
       setStatus('ready');
@@ -147,7 +151,7 @@ export const CameraPreview = forwardRef<CameraPreviewRef, CameraPreviewProps>(({
         lastFpsUpdateRef.current = now;
       }
     } catch (error) {
-      console.error('Capture/analysis error:', error);
+      console.error('📷 [CAMERA] Capture/analysis error:', error);
       setStatus('error');
       setLastMessage('Vision offline, proceed with caution.');
 
@@ -164,7 +168,17 @@ export const CameraPreview = forwardRef<CameraPreviewRef, CameraPreviewProps>(({
     isActive && permission?.granted ? captureIntervalMs : null
   );
 
-  if (!permission?.granted) {
+  if (!permission) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.statusContainer}>
+          <StatusBarPill status="offline" message="Loading camera..." />
+        </View>
+      </View>
+    );
+  }
+
+  if (!permission.granted) {
     return (
       <View style={styles.container}>
         <View style={styles.statusContainer}>
@@ -196,7 +210,7 @@ export const CameraPreview = forwardRef<CameraPreviewRef, CameraPreviewProps>(({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#000000',
   },
   camera: {
     flex: 1,
@@ -204,8 +218,8 @@ const styles = StyleSheet.create({
   statusContainer: {
     position: 'absolute',
     top: 60,
-    left: 16,
-    right: 16,
+    left: 20,
+    right: 20,
     alignItems: 'center',
   },
 });

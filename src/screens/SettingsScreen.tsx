@@ -216,51 +216,61 @@ export function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.backgroundSecondary,
   },
   content: {
     padding: theme.spacing.lg,
   },
   section: {
     marginBottom: theme.spacing.xl,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
   sectionTitle: {
     fontSize: theme.fontSize.lg,
-    fontWeight: '700',
+    fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
+    letterSpacing: -0.5,
   },
   setting: {
     marginBottom: theme.spacing.lg,
   },
   label: {
     fontSize: theme.fontSize.md,
-    fontWeight: '600',
+    fontWeight: theme.fontWeight.semibold,
     color: theme.colors.text,
     marginBottom: theme.spacing.xs,
+    letterSpacing: -0.2,
   },
   description: {
     fontSize: theme.fontSize.sm,
     color: theme.colors.textSecondary,
     marginBottom: theme.spacing.sm,
+    lineHeight: 20,
   },
   slider: {
     width: '100%',
     height: 40,
   },
   input: {
-    backgroundColor: theme.colors.surface,
+    backgroundColor: theme.colors.surfaceElevated,
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
     fontSize: theme.fontSize.md,
     color: theme.colors.text,
+    fontWeight: theme.fontWeight.regular,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: theme.spacing.md,
   },
   flex: {
     flex: 1,
@@ -268,23 +278,26 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: theme.spacing.lg,
     gap: theme.spacing.md,
+    marginBottom: theme.spacing.xl,
   },
   resetButton: {
-    marginTop: theme.spacing.sm,
+    marginTop: 0,
   },
   infoSection: {
-    marginTop: theme.spacing.xl,
+    marginTop: 0,
+    marginBottom: theme.spacing.xxl,
     padding: theme.spacing.lg,
-    backgroundColor: theme.colors.surface,
+    backgroundColor: theme.colors.surfaceElevated,
     borderRadius: theme.borderRadius.lg,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: theme.colors.borderLight,
   },
   infoTitle: {
     fontSize: theme.fontSize.md,
-    fontWeight: '600',
+    fontWeight: theme.fontWeight.semibold,
     color: theme.colors.text,
     marginBottom: theme.spacing.sm,
+    letterSpacing: -0.2,
   },
   infoText: {
     fontSize: theme.fontSize.sm,
