@@ -3,6 +3,7 @@
   "alignment": "center",
   "curb_ahead": false,
   "obstacle_close": false,
+  "pedestrian_signal": "walk",
   "confidence": 0.85,
-  "narration": "Crosswalk ahead, path is clear"
+  "narration": "Crosswalk ahead with walk signal, path is clear"
 }

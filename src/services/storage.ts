@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
-import { AppSettings, DEFAULT_SETTINGS } from '../constants';
+import { AppSettings } from '../types';
+import { DEFAULT_SETTINGS } from '../constants';
 
 const SETTINGS_KEY = 'app_settings';
 

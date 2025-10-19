@@ -8,6 +8,7 @@ const SceneSchema = z.object({
   alignment: z.enum(['center', 'veer_left', 'veer_right', 'unknown']),
   curb_ahead: z.boolean(),
   obstacle_close: z.boolean(),
+  pedestrian_signal: z.enum(['walk', 'dont_walk', 'countdown', 'none']),
   confidence: z.number().min(0).max(1),
   narration: z.string().optional(),
 });
@@ -44,6 +45,8 @@ export async function analyzeFrameAsync(base64Jpeg: string): Promise<SceneJSON> 
     const response = await result.response;
     const text = response.text();
 
+    console.log('🔍 [GEMINI] Raw AI response:', text);
+
     // Extract JSON from response (handle potential markdown code blocks)
     let jsonText = text.trim();
     if (jsonText.startsWith('```json')) {
@@ -53,11 +56,14 @@ export async function analyzeFrameAsync(base64Jpeg: string): Promise<SceneJSON> 
     }
 
     const parsed = JSON.parse(jsonText);
+    console.log('🔍 [GEMINI] Parsed JSON:', JSON.stringify(parsed, null, 2));
+
     const validated = SceneSchema.parse(parsed);
+    console.log('✅ [GEMINI] Validated scene:', JSON.stringify(validated, null, 2));
 
     return validated as SceneJSON;
   } catch (error) {
-    console.error('Gemini analysis error:', error);
+    console.error('❌ [GEMINI] Analysis error:', error);
     throw new Error('Vision analysis failed');
   }
 }

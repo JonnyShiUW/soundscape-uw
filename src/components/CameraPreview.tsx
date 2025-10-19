@@ -60,19 +60,23 @@ export function CameraPreview({
       // Analyze with Gemini or use mock data
       let scene: SceneJSON;
       if (isGeminiConfigured()) {
+        console.log('📸 [CAMERA] Analyzing frame with Gemini...');
         scene = await analyzeFrameAsync(photo.base64);
       } else {
         // Use mock data when Gemini is not configured
+        console.log('📸 [CAMERA] Using mock data (Gemini not configured)');
         await new Promise((resolve) => setTimeout(resolve, 200)); // Simulate API delay
         scene = mockSceneData as SceneJSON;
       }
 
+      console.log('📸 [CAMERA] Scene result:', JSON.stringify(scene, null, 2));
       onSceneUpdate?.(scene);
 
       // Derive guidance
       const guidance = deriveGuidance(scene, lastGuidance, safeMode);
 
       if (guidance && canSpeak()) {
+        console.log('🔊 [CAMERA] Speaking guidance:', guidance.text);
         setLastMessage(guidance.text);
         setLastGuidance(guidance);
         markSpeechTime();
@@ -82,6 +86,10 @@ export function CameraPreview({
 
         // Speak guidance
         await speak(guidance.text, voiceId);
+      } else if (guidance) {
+        console.log('🔇 [CAMERA] Guidance ready but speech debounced:', guidance.text);
+      } else {
+        console.log('ℹ️  [CAMERA] No guidance generated');
       }
 
       setStatus('ready');
